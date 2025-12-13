@@ -1,6 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import axios from 'axios';
+
+// Generate mock stock data for comparison
+const generateMockStockData = (ticker, days = 30) => {
+  const data = [];
+  const basePrice = ticker.length * 25 + 100;
+  let currentPrice = basePrice;
+  
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toISOString().split('T')[0];
+    
+    const change = (Math.random() - 0.48) * 0.06;
+    currentPrice = currentPrice * (1 + change);
+    
+    data.push({
+      date: dateStr,
+      close: currentPrice,
+      moonPhase: { name: 'waxing-crescent', fraction: Math.random() }
+    });
+  }
+  
+  return { ticker, data };
+};
 
 const MultiStockComparison = ({ stocks, onStocksChange, period, onPeriodChange }) => {
   const [comparisonData, setComparisonData] = useState(null);
@@ -16,19 +39,20 @@ const MultiStockComparison = ({ stocks, onStocksChange, period, onPeriodChange }
     setLoading(true);
     setError(null);
     
+    // Simulate loading delay
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
     try {
-      const promises = stocks.map(stock => 
-        axios.get(`/api/stock/${stock}?period=${period}`)
-      );
+      const periodDays = { '1M': 30, '3M': 90, '6M': 180, '1Y': 365, '5Y': 1825 };
+      const days = periodDays[period] || 30;
       
-      const responses = await Promise.all(promises);
-      const allData = responses.map(response => response.data);
+      const allData = stocks.map(stock => generateMockStockData(stock, Math.min(days, 100)));
       
       // Merge data by date
       const dateMap = new Map();
       
-      allData.forEach((stockData, index) => {
-        const ticker = stocks[index];
+      allData.forEach((stockData) => {
+        const ticker = stockData.ticker;
         stockData.data.forEach(item => {
           if (!dateMap.has(item.date)) {
             dateMap.set(item.date, { date: item.date });
@@ -48,7 +72,7 @@ const MultiStockComparison = ({ stocks, onStocksChange, period, onPeriodChange }
       });
       
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to fetch comparison data');
+      setError('Failed to generate comparison data');
     } finally {
       setLoading(false);
     }
