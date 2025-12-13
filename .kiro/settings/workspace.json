@@ -1,0 +1,29 @@
+{
+  "name": "Stock vs Moon Dashboard",
+  "description": "Advanced stock analysis dashboard with lunar cycle correlations",
+  "version": "1.0.0",
+  "type": "full-stack",
+  "technologies": [
+    "React",
+    "Node.js",
+    "Express",
+    "Vite",
+    "Docker"
+  ],
+  "features": [
+    "Stock data analysis",
+    "Moon phase calculations",
+    "Interactive charts",
+    "Multi-stock comparison",
+    "Strategy backtesting",
+    "AI-powered insights"
+  ],
+  "ports": {
+    "frontend": 3000,
+    "backend": 3001
+  },
+  "environment": {
+    "node_version": "18+",
+    "package_manager": "npm"
+  }
+}
